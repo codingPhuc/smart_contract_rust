@@ -20,9 +20,9 @@ pub struct Product {
 pub struct Contract  
 {
   pub owner_id : AccountId  , 
-  pub total-products : u32 , 
+  pub total_products : u32 , 
   pub products : UnorderedMap<u32 , Product >  , 
-  pub product_for-owner  : UnorderedMap<AccountId , Product >  , 
+  pub product_for_owner  : UnorderedMap<AccountId , Product >  , 
 }
 // Implement the contract structure
 #[near_bindgen]
@@ -30,24 +30,36 @@ impl Contract {
   #[init]
   pub fn new() -> Self  
   {
-    Self{owner_id : env::signer_account_id() , products : UnorderedMap::new(b"products".to_vec())}
+    Self{owner_id : env::signer_account_id() ,
+      total_products: 0   ,  
+       products : UnorderedMap::new(b"products".to_vec()), 
+       product_for_owner : UnorderedMap::new(b"product_for_owner".to_vec())  , 
+      }
   }
   pub fn add_product(&mut self , id : String  , name :  String  , desc  : String , price : Balance )
    {
     let product = Product{id, name  , desc  , price  ,owner:env::signer_account_id()} ; 
-    self.products.insert(&product.id , &product )  ; 
+    self.total_products +=  1 ;  
 
-   } 
-   pub fn get_all_products(&self) -> Vec<Product>  
-   {
-    let mut all_product  = Vec::new()  ; 
-    for i in self.products.inter() 
-    {
-      all_products
-    }
+    self.products.insert(&self.total_products , &product )  ; 
+    let owner = env::signer_account_id()  ; 
+    self.product_for_owner.insert(&owner , &product)  ; 
 
    }
+   pub fn count_products(&self) -> u32 
+   {
+    self.total_products
+   } 
+  //  pub fn get_all_products(&self) -> Vec<Product>  
+  //  {
+  //   let mut all_product  = Vec::new()  ; 
+  //   for i in self.products.inter() 
+  //   {
+  //     all_products
+  //   }
+
+  //  }
 }
 
-
-// near call dev-1689438118495-87455530988477 add_product '{"id":"id me" , "name" : "name me"  , "desc"  : "no to me"  , "price" : 1 } ' --account-id konodioda2411.testnet
+// near call dev-1689488809085-52591552156783 new --account-id dev-1689488809085-52591552156783
+// near call dev-1689488809085-52591552156783 add_product '{"id":"id me" , "name" : "name me"  , "desc"  : "no to me"  , "price" : 1 } ' --account-id konodioda2411.testnet
