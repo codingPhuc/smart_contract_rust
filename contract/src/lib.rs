@@ -1,36 +1,53 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::near_bindgen;
-use near_sdk::serde::{Deserialize, Serialize};
+use near_sdk::collections::UnorderedMap;
+use near_sdk::{env , near_bindgen , AccountId , Balance}; 
+use near_sdk::PanicOnDefault  ; 
 
 // Define the contract structure
 #[near_bindgen]
-#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
-#[serde(crate = "near_sdk::serde")]
-pub struct Contract {
-  count: u32,
+#[derive(BorshDeserialize, BorshSerialize)]
+pub struct Product {
+  pub id  : String ,  
+  pub name  : String  , 
+  pub desc : String  ,  
+  pub price : Balance  , 
+  pub owner  : AccountId  , 
 }
 
-// Define the default, which automatically initializes the contract
-impl Default for Contract {
-  fn default() -> Self {
-    Self { count: 0 }
-  }
-}
 
+#[near_bindgen] 
+#[derive(PanicOnDefault, BorshDeserialize  , BorshSerialize)]
+pub struct Contract  
+{
+  pub owner_id : AccountId  , 
+  pub total-products : u32 , 
+  pub products : UnorderedMap<u32 , Product >  , 
+  pub product_for-owner  : UnorderedMap<AccountId , Product >  , 
+}
 // Implement the contract structure
 #[near_bindgen]
 impl Contract {
-  // Public method - Get the current count
-  pub fn get_number(&self) -> u32 {
-    self.count
+  #[init]
+  pub fn new() -> Self  
+  {
+    Self{owner_id : env::signer_account_id() , products : UnorderedMap::new(b"products".to_vec())}
   }
+  pub fn add_product(&mut self , id : String  , name :  String  , desc  : String , price : Balance )
+   {
+    let product = Product{id, name  , desc  , price  ,owner:env::signer_account_id()} ; 
+    self.products.insert(&product.id , &product )  ; 
 
-  // Private method - Call this method to increment the count by a given number
-  pub fn plus(&mut self, number: u32) {
-    self.count += number;
-  }
+   } 
+   pub fn get_all_products(&self) -> Vec<Product>  
+   {
+    let mut all_product  = Vec::new()  ; 
+    for i in self.products.inter() 
+    {
+      all_products
+    }
 
-  fn plus_one(&mut self) {
-    self.count += 1;
-  }
+   }
 }
+
+
+// near call dev-1689438118495-87455530988477 add_product '{"id":"id me" , "name" : "name me"  , "desc"  : "no to me"  , "price" : 1 } ' --account-id konodioda2411.testnet
